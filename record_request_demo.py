@@ -9,7 +9,7 @@ DOMAIN = "https://api.hermeshealth.dev"
 API_KEY = ""
 PROJECT_ID = 1578441519
 
-PATIENT_ID = "p_1234567890"
+PATIENT_ID = "1234567890"
 PATIENT = {
     "firstName": "John",
     "lastName": "Doe",
@@ -23,7 +23,7 @@ PATIENT = {
     "email": "john.doe@example.com",
 }
 SITE = {
-    "site_info":{
+    "site_info": {
         "name": "Ochsner Medical Center",
         "address": "1514 Jefferson Hwy",
         "city": "Jefferson",
