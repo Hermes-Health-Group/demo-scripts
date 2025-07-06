@@ -3,7 +3,7 @@ import requests
 import sys
 import json
 
-# python hipaa-check.py input.pdf
+# python hipaa_check_demo.py input.pdf
 
 # Configuration
 DOMAIN = "https://api.hermeshealth.dev" 
