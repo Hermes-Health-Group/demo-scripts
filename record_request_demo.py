@@ -23,13 +23,11 @@ PATIENT = {
     "email": "john.doe@example.com",
 }
 SITE = {
-    "site_info": {
-        "name": "Ochsner Medical Center",
-        "address": "1514 Jefferson Hwy",
-        "city": "Jefferson",
-        "state": "LA",
-        "zip": "70121"
-    }
+    "site_name": "Ochsner Medical Center",
+    "site_address": "1514 Jefferson Hwy",
+    "site_city": "Jefferson",
+    "site_state": "LA",
+    "site_zip": "70121"
 }
 
 
