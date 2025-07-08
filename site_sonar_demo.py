@@ -1,5 +1,6 @@
 import requests
 import sys
+import json
 
 # run with python site_sonar_demo.py input.pdf
 
@@ -44,5 +45,7 @@ if __name__ == "__main__":
     hipaa_authorization_filename = sys.argv[1]
     requests.put(upload_pre_signed_url_json['uploadUrl'], headers=upload_pre_signed_url_json['headers'], data=open(hipaa_authorization_filename, "rb"))
 
-
-
+    # get the results (should be empty right now, this takes at least a day)
+    site_sonar_response = requests.get(f"{DOMAIN}/v0/projects/{PROJECT_ID}/patients/{PATIENT_ID}/site-sonar", headers=headers)
+    
+    print(json.dumps(site_sonar_response.json(), indent=2))
