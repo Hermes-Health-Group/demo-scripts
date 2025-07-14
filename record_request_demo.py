@@ -7,20 +7,20 @@ import json
 # Configuration
 DOMAIN = "https://api.hermeshealth.dev"
 API_KEY = ""
-PROJECT_ID = 456752830
+PROJECT_ID = 84371101
 
-PATIENT_ID = "1234567890"
+PATIENT_ID = "CLIENT-54444"
 PATIENT = {
-    "firstName": "John",
+    "firstName": "Jane",
     "lastName": "Doe",
     "dateOfBirth": "1990-01-01",
-    "sex": "Male",
+    "sex": "Female",
     "startDateOfService": "2020-01-01",
-    "endDateOfService": "2020-01-01",
-    "hipaaExpirationDate": "2020-01-01",
+    "endDateOfService": "2025-01-01",
+    "hipaaExpirationDate": "2025-01-01",
     "mobile": "123-456-7890",
     "socialSecurityNumber": "123-45-6789",
-    "email": "john.doe@example.com",
+    "email": "jane.doe@example.com",
 }
 SITE = {
     "siteName": "Ochsner Medical Center",
@@ -29,6 +29,8 @@ SITE = {
     "siteState": "LA",
     "siteZip": "70121"
 }
+
+PREVIOUS_REQUEST_ID = "345"
 
 
 if __name__ == "__main__":
@@ -58,19 +60,39 @@ if __name__ == "__main__":
 
     request_id = record_request_response_json["requestId"]
     print(f"Request ID: {request_id}")
-    print("Validating information in HIPAA Authorization")
-    hipaa_url = f"{DOMAIN}/v0/projects/{PROJECT_ID}/patients/{PATIENT_ID}/hipaa-authorization"
-    while True:
-        response = requests.head(hipaa_url, headers=hermes_headers)
-        print(response.headers['X-Progress'] + "%")
-        if response.status_code == 200:
-            break
-        time.sleep(15)
+    # print("Validating information in HIPAA Authorization")
+    # hipaa_url = f"{DOMAIN}/v0/projects/{PROJECT_ID}/patients/{PATIENT_ID}/hipaa-authorization"
+    # while True:
+    #     response = requests.head(hipaa_url, headers=hermes_headers)
+    #     print(response.headers['X-Progress'] + "%")
+    #     if response.status_code == 200:
+    #         break
+    #     time.sleep(60)
     
-    hipaa_check_output_json = requests.get(
-        hipaa_url,
+    # hipaa_check_output_json = requests.get(
+    #     hipaa_url,
+    #     headers=hermes_headers,
+    # ).json()
+
+    # print(json.dumps(hipaa_check_output_json['check'], indent=2))
+
+    print("Fetching patient's previous request...")
+
+    previous_request_url = f"{DOMAIN}/v0/projects/{PROJECT_ID}/patients/{PATIENT_ID}/record-requests/{PREVIOUS_REQUEST_ID}"
+    previous_request_response_json = requests.get(
+        previous_request_url,
         headers=hermes_headers,
     ).json()
+    print(json.dumps(previous_request_response_json, indent=2))
 
-    print(json.dumps(hipaa_check_output_json['check'], indent=2))
+    medical_record_url = previous_request_response_json["recordRequest"]["medicalRecordUrl"]
+
+    if medical_record_url != None:
+        print("Downloading medical record...")
+        download_response = requests.get(medical_record_url)
+        with open("medical_record.pdf", "wb") as f:
+            f.write(download_response.content)
+        print("Medical record downloaded")
+    else:
+        print("No medical record found")
 

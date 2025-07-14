@@ -46,6 +46,19 @@ if __name__ == "__main__":
     requests.put(upload_pre_signed_url_json['uploadUrl'], headers=upload_pre_signed_url_json['headers'], data=open(hipaa_authorization_filename, "rb"))
 
     # get the results (should be empty right now, this takes at least a day)
-    site_sonar_response = requests.get(f"{DOMAIN}/v0/projects/{PROJECT_ID}/patients/{PATIENT_ID}/site-sonar", headers=headers)
-    
-    print(json.dumps(site_sonar_response.json(), indent=2))
+    site_sonar_response_json = requests.get(f"{DOMAIN}/v0/projects/{PROJECT_ID}/patients/{PATIENT_ID}/site-sonar", headers=headers).json()
+        
+    print(json.dumps(site_sonar_response_json, indent=2))
+
+    sites = site_sonar_response_json["sites"]
+
+    for site in sites:
+        site_id = site["siteId"]
+        print(f"Getting info for site ID: {site_id}")
+
+        site_sonar_response_json = requests.get(f"{DOMAIN}/v0/sites/{site_id}", headers=headers).json()
+
+        print(json.dumps(site_sonar_response_json, indent=2))
+
+
+
