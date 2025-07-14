@@ -7,7 +7,7 @@ import json
 # Configuration
 DOMAIN = "https://api.hermeshealth.dev"
 API_KEY = ""
-PROJECT_ID = 1578441519
+PROJECT_ID = 456752830
 
 PATIENT_ID = "1234567890"
 PATIENT = {
@@ -23,11 +23,11 @@ PATIENT = {
     "email": "john.doe@example.com",
 }
 SITE = {
-    "site_name": "Ochsner Medical Center",
-    "site_address": "1514 Jefferson Hwy",
-    "site_city": "Jefferson",
-    "site_state": "LA",
-    "site_zip": "70121"
+    "siteName": "Ochsner Medical Center",
+    "siteAddress": "1514 Jefferson Hwy",
+    "siteCity": "Jefferson",
+    "siteState": "LA",
+    "siteZip": "70121"
 }
 
 

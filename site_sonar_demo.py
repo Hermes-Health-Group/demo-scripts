@@ -7,22 +7,22 @@ import json
 # Configuration
 DOMAIN = "https://api.hermeshealth.dev"
 API_KEY = ""
-PROJECT_ID = 1578441519
+PROJECT_ID = 84371101
 
-PATIENT_ID = 123411111
+PATIENT_ID = "CLIENT-54444"
 
 PATIENT = {
-    "firstName": "John",
+    "firstName": "Jane",
     "lastName": "Doe",
     "dateOfBirth": "1990-01-01",
-    "sex": "Male",
+    "sex": "Female",
     "zipCode": "12345",
     "startDateOfService": "2020-01-01",
-    "endDateOfService": "2020-01-01",
-    "hipaaExpirationDate": "2020-01-01",
+    "endDateOfService": "2025-01-01",
+    "hipaaExpirationDate": "2025-01-01",
     "mobile": "123-456-7890",
     "socialSecurityNumber": "123-45-6789",
-    "email": "john.doe@example.com",
+    "email": "jane.doe@example.com",
     "siteSonar": True,
 }
 
