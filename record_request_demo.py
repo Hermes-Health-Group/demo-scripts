@@ -1,4 +1,3 @@
-import time
 import requests
 import sys
 import json
@@ -60,21 +59,6 @@ if __name__ == "__main__":
 
     request_id = record_request_response_json["requestId"]
     print(f"Request ID: {request_id}")
-    # print("Validating information in HIPAA Authorization")
-    # hipaa_url = f"{DOMAIN}/v0/projects/{PROJECT_ID}/patients/{PATIENT_ID}/hipaa-authorization"
-    # while True:
-    #     response = requests.head(hipaa_url, headers=hermes_headers)
-    #     print(response.headers['X-Progress'] + "%")
-    #     if response.status_code == 200:
-    #         break
-    #     time.sleep(60)
-    
-    # hipaa_check_output_json = requests.get(
-    #     hipaa_url,
-    #     headers=hermes_headers,
-    # ).json()
-
-    # print(json.dumps(hipaa_check_output_json['check'], indent=2))
 
     print("Fetching patient's previous request...")
 
