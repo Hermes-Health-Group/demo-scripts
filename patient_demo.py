@@ -2,7 +2,7 @@ import requests
 import sys
 import json
 
-# run with python site_sonar_demo.py input.pdf
+# run with python patient_demo.py input.pdf
 
 # Configuration
 DOMAIN = "https://api.hermeshealth.ai"
