@@ -1,3 +1,30 @@
+'''
+# Hermes Health Patient Upload & Site Sonar Script
+
+This script allows you to:
+
+1. Add a patient to a specific project on the Hermes Health platform.
+2. Upload the patient's HIPAA authorization PDF.
+3. Automatically trigger Site Sonar to discover facilities associated with the patient.
+4. Print facility metadata for each identified site.
+
+## Prerequisites
+
+- Python 3.x
+- `requests` library
+- A valid `API_KEY` for Hermes Health
+- A valid `PROJECT_ID` on the Hermes Health platform
+- A HIPAA authorization PDF file for the patient
+
+## Setup
+
+1. Clone or download this script.
+2. Install the `requests` package if not already installed:
+
+```bash
+pip install requests
+'''
+
 import requests
 import sys
 import json
