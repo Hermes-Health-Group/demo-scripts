@@ -45,12 +45,11 @@ import requests
 import json
 
 # Configuration: set your API endpoint and API key here
-DOMAIN = "https://api.hermeshealth.dev"
+DOMAIN = "https://api.hermeshealth.ai"
 API_KEY = ""  # ← insert your API key here
 
 # Demo test cases
 TEST_CASES = [
-    # This one should be found
     {
         "name": "Ochsner Medical Center",
         "address": "1514 Jefferson Hwy",
@@ -58,7 +57,6 @@ TEST_CASES = [
         "state": "LA",
         "zip": "70121"
     },
-    # This one should not be found
     {
         "name": "Woman's Hospital",
         "address": "100 Woman's Way",

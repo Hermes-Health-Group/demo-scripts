@@ -44,7 +44,7 @@ import sys            # access command-line arguments
 import json           # parse and pretty-print JSON responses
 
 # Configuration: set your API endpoint and API key here
-DOMAIN = "https://api.hermeshealth.dev"
+DOMAIN = "https://api.hermeshealth.ai"
 API_KEY = ""  # ← insert your API key here
 
 if __name__ == "__main__":
@@ -66,7 +66,7 @@ if __name__ == "__main__":
     ).json()
 
     # 5) Upload the file bytes to the storage service
-    requests.put(
+    response = requests.put(
         upload_pre_signed_url_json['uploadUrl'],
         headers=upload_pre_signed_url_json['headers'],
         data=open(input_file, "rb")

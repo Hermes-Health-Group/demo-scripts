@@ -41,7 +41,7 @@ import sys               # for reading command-line arguments
 # python ocr_demo.py ocr-json test_3.pdf
 
 # Configuration: set your API host and key here
-DOMAIN = "https://api.hermeshealth.dev"
+DOMAIN = "https://api.hermeshealth.ai"
 API_KEY = ""  # ← insert your API key
 
 if __name__ == "__main__":

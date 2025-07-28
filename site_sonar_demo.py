@@ -5,9 +5,9 @@ import json
 # run with python site_sonar_demo.py input.pdf
 
 # Configuration
-DOMAIN = "https://api.hermeshealth.dev"
+DOMAIN = "https://api.hermeshealth.ai"
 API_KEY = ""
-PROJECT_ID = 84371101
+PROJECT_ID = 456752830
 
 PATIENT_ID = "CLIENT-54444"
 
@@ -37,7 +37,7 @@ if __name__ == "__main__":
     print("-" * 50)
     
     upload_pre_signed_url_json = requests.put(
-        f"{DOMAIN}/v0/projects/{PROJECT_ID}/patients/{PATIENT_ID}/hipaa-authorization",
+        f"{DOMAIN}/v0/projects/{PROJECT_ID}/patients/{PATIENT_ID}",
         headers=headers,
         json=PATIENT,
     ).json()
