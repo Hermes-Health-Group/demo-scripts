@@ -9,6 +9,8 @@ API_KEY = ""
 PROJECT_ID = 456752830
 
 PATIENT_ID = "CLIENT-54444"
+
+#OPTIONAL IF THE PATIENT EXISTS
 PATIENT = {
     "firstName": "Jane",
     "lastName": "Doe",
@@ -21,6 +23,8 @@ PATIENT = {
     "socialSecurityNumber": "123-45-6789",
     "email": "jane.doe@example.com",
 }
+
+# REQUIRED
 SITE = {
     "siteName": "Ochsner Medical Center",
     "siteAddress": "1514 Jefferson Hwy",
