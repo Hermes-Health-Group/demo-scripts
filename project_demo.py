@@ -14,8 +14,8 @@ NEW_PROJECT = {
 }
 
 # File paths for uploads (passed as command line arguments)
-REQUEST_LETTER_FILE = sys.argv[1] if len(sys.argv) > 1
-REPRESENTATION_LETTER_FILE = sys.argv[2] if len(sys.argv) > 2
+REQUEST_LETTER_FILE = sys.argv[1] if len(sys.argv) > 1 else None
+REPRESENTATION_LETTER_FILE = sys.argv[2] if len(sys.argv) > 2 else None
 
 if __name__ == "__main__":
     hermes_headers = {
@@ -42,29 +42,35 @@ if __name__ == "__main__":
         print(f"Description: {created_project['project']['description']}")
         print()
         
-        # Upload request letter
-        print("Uploading request letter...")
-        print("-" * 50)
-        request_letter_upload = created_project["requestLetterUpload"]
-        with open(REQUEST_LETTER_FILE, "rb") as f:
-            upload_response = requests.put(
-                request_letter_upload["uploadUrl"],
-                headers=request_letter_upload["headers"],
-                data=f
-            )
-        print(f"Request letter upload status: {upload_response.status_code}")
+        # Upload request letter (if provided)
+        if REQUEST_LETTER_FILE:
+            print("Uploading request letter...")
+            print("-" * 50)
+            request_letter_upload = created_project["requestLetterUpload"]
+            with open(REQUEST_LETTER_FILE, "rb") as f:
+                upload_response = requests.put(
+                    request_letter_upload["uploadUrl"],
+                    headers=request_letter_upload["headers"],
+                    data=f
+                )
+            print(f"Request letter upload status: {upload_response.status_code}")
+        else:
+            print("No request letter provided - skipping upload")
         
-        # Upload representation letter
-        print("Uploading representation letter...")
-        print("-" * 50)
-        representation_letter_upload = created_project["representationLetterUpload"]
-        with open(REPRESENTATION_LETTER_FILE, "rb") as f:
-            upload_response = requests.put(
-                representation_letter_upload["uploadUrl"],
-                headers=representation_letter_upload["headers"],
-                data=f
-            )
-        print(f"Representation letter upload status: {upload_response.status_code}")
+        # Upload representation letter (if provided)
+        if REPRESENTATION_LETTER_FILE:
+            print("Uploading representation letter...")
+            print("-" * 50)
+            representation_letter_upload = created_project["representationLetterUpload"]
+            with open(REPRESENTATION_LETTER_FILE, "rb") as f:
+                upload_response = requests.put(
+                    representation_letter_upload["uploadUrl"],
+                    headers=representation_letter_upload["headers"],
+                    data=f
+                )
+            print(f"Representation letter upload status: {upload_response.status_code}")
+        else:
+            print("No representation letter provided - skipping upload")
         print()
         
         # GET - Retrieve the created project
