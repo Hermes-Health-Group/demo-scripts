@@ -12,7 +12,7 @@ import sys
 import json
 
 # Run with:
-# python record_request_demo.py input.pdf
+# python record_request_demo.py test_1.pdf
 # where "input.pdf" is the HIPAA authorization PDF.
 
 # --------------------
