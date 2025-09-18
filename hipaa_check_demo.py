@@ -74,20 +74,18 @@ if __name__ == "__main__":
 
     # 6) Poll the API until processing is complete
     while True:
-        response = requests.head(hermes_url, headers=hermes_headers)
-        print(response.headers['X-Progress'] + "%")  # show progress
-        if response.status_code == 200:
+        response = requests.get(hermes_url, headers=hermes_headers)
+        hipaa_check_output_json = response.json()
+        
+        
+        # Check if analysis is complete (not null)
+        if hipaa_check_output_json.get('analysis') is not None:
             break
+        print("Waiting for analysis to complete...")
         time.sleep(15)
 
-    # 7) Fetch the JSON results of the HIPAA check
-    hipaa_check_output_json = requests.get(
-        hermes_url,
-        headers=hermes_headers
-    ).json()
-
     # Pretty-print the 'check' section
-    print(json.dumps(hipaa_check_output_json['check'], indent=2))
+    print(json.dumps(hipaa_check_output_json, indent=2))
 
     # 8) Download the processed file (e.g., OCR’d or annotated PDF)
     download_response = requests.get(
