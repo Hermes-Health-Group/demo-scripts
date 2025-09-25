@@ -46,8 +46,7 @@ API_KEY = ""  # ← insert your API key
 
 if __name__ == "__main__":
     # Read command-line args: processing_type (endpoint) and input_file (to upload)
-    processing_type = sys.argv[1]   # e.g. "ocr-pdf" or "ocr-json"
-    input_file = sys.argv[2]        # e.g. "ocr_test_1.pdf"
+    input_file = sys.argv[1]        # e.g. "ocr_test_1.pdf"
 
     # Prepare the Authorization header for all requests
     hermes_headers = {
@@ -55,7 +54,7 @@ if __name__ == "__main__":
     }
 
     # Construct the URL for initiating upload/processing
-    hermes_url = f"{DOMAIN}/v0/{processing_type}/{input_file}"
+    hermes_url = f"{DOMAIN}/v0/ocr/{input_file}"
 
     # Step 1: Request a pre-signed upload URL for the file
     upload_pre_signed_url_json = requests.put(
@@ -99,7 +98,7 @@ if __name__ == "__main__":
     download_filename = content_disposition[filename_start:filename_end]
 
     # Step 6: Save the downloaded content locally, prefixing with the processing type
-    output_path = f"{processing_type}_{download_filename}"
+    output_path = f"ocr_{download_filename}"
     with open(output_path, "wb") as f:
         f.write(download_response.content)
 
