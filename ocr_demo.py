@@ -65,7 +65,7 @@ if __name__ == "__main__":
     # Step 2: Upload the file bytes to the pre-signed URL
     requests.put(
         upload_pre_signed_url_json['uploadUrl'],
-        headers=upload_pre_signed_url_json['headers'],
+        headers=upload_pre_signed_url_json['uploadHeaders'],
         data=open(input_file, "rb")
     )
 
