@@ -49,7 +49,8 @@ SITE = {
 
 # Example of a previously created record request ID
 PREVIOUS_REQUEST_ID = "298"
-
+COMPANY_ID = "1"
+REQUEST_ID = "ASDF123"
 
 # ------------------------
 # Main program entry point
@@ -69,40 +70,37 @@ if __name__ == "__main__":
     print("-" * 50)
     
     upload_pre_signed_url_json = requests.put(
-        f"{DOMAIN}/v0/projects/{PROJECT_ID}/patients/{PATIENT_ID}",
+        f"{DOMAIN}/v0/companies/{COMPANY_ID}/projects/{PROJECT_ID}/patients/{PATIENT_ID}",
         headers=hermes_headers,
         json=PATIENT,
     ).json()
 
+    print(json.dumps(upload_pre_signed_url_json, indent=2))
+
     # Step 2: Upload HIPAA authorization PDF to S3 pre-signed URL
     requests.put(
-        upload_pre_signed_url_json['uploadUrl'],
-        headers=upload_pre_signed_url_json['headers'],
+        upload_pre_signed_url_json['hipaaAuthorization']['uploadUrl'],
+        headers=upload_pre_signed_url_json['hipaaAuthorization']['uploadHeaders'],
         data=open(hipaa_authorization_filename, "rb")
     )
 
     # Step 3: Submit new record request to the specified site
-    record_request_response_json = requests.post(
-        f"{DOMAIN}/v0/projects/{PROJECT_ID}/patients/{PATIENT_ID}/record-requests",
+    requests.post(
+        f"{DOMAIN}/v0/companies/{COMPANY_ID}/projects/{PROJECT_ID}/patients/{PATIENT_ID}/record-requests/{REQUEST_ID}",
         headers=hermes_headers,
         json=SITE,
     ).json()
 
-    # Extract and print request ID from response
-    request_id = record_request_response_json["requestId"]
-    print(f"Request ID: {request_id}")
-
     # Step 4: Retrieve details of a previous record request
     print("Fetching patient's previous request...")
-    previous_request_url = f"{DOMAIN}/v0/projects/{PROJECT_ID}/patients/{PATIENT_ID}/record-requests/{PREVIOUS_REQUEST_ID}"
     previous_request_response_json = requests.get(
-        previous_request_url,
+        f"{DOMAIN}/v0/companies/{COMPANY_ID}/projects/{PROJECT_ID}/patients/{PATIENT_ID}/record-requests/{PREVIOUS_REQUEST_ID}",
         headers=hermes_headers,
     ).json()
     print(json.dumps(previous_request_response_json, indent=2))
 
     # Step 5: If medical record file is available, download it
-    medical_record_url = previous_request_response_json["recordRequest"]["medicalRecordUrl"]
+    medical_record_url = previous_request_response_json["medicalRecord"]["downloadUrl"]
 
     if medical_record_url is not None:
         print("Downloading medical record...")

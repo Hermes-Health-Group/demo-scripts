@@ -6,6 +6,9 @@ import sys
 DOMAIN = "https://api.hermeshealth.ai"
 API_KEY = ""
 
+PROJECT_ID = "123ASDF"
+COMPANY_ID = "1"
+
 # Project data for creation
 NEW_PROJECT = {
     "name": "Demo Project",
@@ -27,17 +30,16 @@ if __name__ == "__main__":
     print("-" * 50)
     
     # POST - Create a new project
-    create_response = requests.post(
-        f"{DOMAIN}/v0/projects",
+    create_response = requests.put(
+        f"{DOMAIN}/v0/companies/{COMPANY_ID}/projects/{PROJECT_ID}",
         headers=hermes_headers,
         json=NEW_PROJECT,
     )
     
     if create_response.status_code == 200:
         created_project = create_response.json()
-        project_id = created_project["project"]["id"]
         print(f"Project created successfully!")
-        print(f"Project ID: {project_id}")
+        print(f"Project ID: {PROJECT_ID}")
         print(f"Project Name: {created_project['project']['name']}")
         print(f"Description: {created_project['project']['description']}")
         print()
@@ -78,7 +80,7 @@ if __name__ == "__main__":
         print("-" * 50)
         
         get_response = requests.get(
-            f"{DOMAIN}/v0/projects/{project_id}",
+            f"{DOMAIN}/v0/companies/{COMPANY_ID}/projects/{PROJECT_ID}",
             headers=hermes_headers,
         )
         
