@@ -75,7 +75,7 @@ if __name__ == "__main__":
     # Step 3: Trigger Site Sonar to retrieve facilities for this patient
     # This takes 12-48 hours, so we will retrieve a previous patient's as an example
     site_sonar_response_json = requests.get(
-        f"{DOMAIN}/v0/companies/{COMPANY_ID}/projects/{PROJECT_ID}/patients/{PREVIOUS_PATIENT_ID}/site-sonar?columns=patient~siteSonar",
+        f"{DOMAIN}/v0/companies/{COMPANY_ID}/projects/{PROJECT_ID}/patients/{PREVIOUS_PATIENT_ID}/site-sonar?columns=patient~siteSonar&flatten",
         headers=headers
     ).json()
         
