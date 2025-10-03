@@ -33,11 +33,12 @@ PATIENT = {
     "mobile": "123-456-7890",
     "email": "jane.doe@example.com",
     # The following fields are optional at the time of creation, but must be provided at some point before records/site-sonar can be processed
+    # To specify these later, either set them to None/null or omit them from the request
     "socialSecurityNumber": "123-45-6789",
     "startDateOfService": "2024-01-01",   # Start of care window
     "endDateOfService": "2025-01-01",     # End of care window
     "hipaaExpirationDate": "2025-01-01",  # HIPAA authorization expiration
-    
+
     # You can set this to true even if the authorization has not been provided yet, we will only run once all required info is provided
     "siteSonar": True,  # Enable Site Sonar to find facilities automatically.
 }
