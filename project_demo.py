@@ -38,6 +38,10 @@ if __name__ == "__main__":
     
     if create_response.status_code == 200:
         created_project = create_response.json()
+
+        
+        print(json.dumps(created_project, indent=2))
+
         print(f"Project created successfully!")
         print(f"Project ID: {PROJECT_ID}")
         print(f"Project Name: {created_project['project']['name']}")
@@ -48,11 +52,11 @@ if __name__ == "__main__":
         if REQUEST_LETTER_FILE:
             print("Uploading request letter...")
             print("-" * 50)
-            request_letter_upload = created_project["requestLetterUpload"]
+            request_letter_upload = created_project["requestLetter"]
             with open(REQUEST_LETTER_FILE, "rb") as f:
                 upload_response = requests.put(
                     request_letter_upload["uploadUrl"],
-                    headers=request_letter_upload["headers"],
+                    headers=request_letter_upload["uploadHeaders"],
                     data=f
                 )
             print(f"Request letter upload status: {upload_response.status_code}")
@@ -63,11 +67,11 @@ if __name__ == "__main__":
         if REPRESENTATION_LETTER_FILE:
             print("Uploading representation letter...")
             print("-" * 50)
-            representation_letter_upload = created_project["representationLetterUpload"]
+            representation_letter_upload = created_project["representationLetter"]
             with open(REPRESENTATION_LETTER_FILE, "rb") as f:
                 upload_response = requests.put(
                     representation_letter_upload["uploadUrl"],
-                    headers=representation_letter_upload["headers"],
+                    headers=representation_letter_upload["uploadHeaders"],
                     data=f
                 )
             print(f"Representation letter upload status: {upload_response.status_code}")
