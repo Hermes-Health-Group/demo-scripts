@@ -4,7 +4,7 @@ import sys
 
 # Configuration
 DOMAIN = "https://api.hermeshealth.ai"
-API_KEY = "a977cec1-fd82-465d-a371-c37aea2d8f5d"
+API_KEY = ""
 
 PROJECT_ID = "123ASDF"
 COMPANY_ID = "1"
@@ -56,7 +56,7 @@ if __name__ == "__main__":
             with open(REQUEST_LETTER_FILE, "rb") as f:
                 upload_response = requests.put(
                     request_letter_upload["uploadUrl"],
-                    headers=request_letter_upload["headers"],
+                    headers=request_letter_upload["uploadHeaders"],
                     data=f
                 )
             print(f"Request letter upload status: {upload_response.status_code}")
@@ -71,7 +71,7 @@ if __name__ == "__main__":
             with open(REPRESENTATION_LETTER_FILE, "rb") as f:
                 upload_response = requests.put(
                     representation_letter_upload["uploadUrl"],
-                    headers=representation_letter_upload["headers"],
+                    headers=representation_letter_upload["uploadHeaders"],
                     data=f
                 )
             print(f"Representation letter upload status: {upload_response.status_code}")
