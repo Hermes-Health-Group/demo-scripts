@@ -4,7 +4,7 @@ import sys
 
 # Configuration
 DOMAIN = "https://api.hermeshealth.ai"
-API_KEY = ""
+API_KEY = "a977cec1-fd82-465d-a371-c37aea2d8f5d"
 
 PROJECT_ID = "123ASDF"
 COMPANY_ID = "1"
@@ -38,6 +38,10 @@ if __name__ == "__main__":
     
     if create_response.status_code == 200:
         created_project = create_response.json()
+
+        
+        print(json.dumps(created_project, indent=2))
+
         print(f"Project created successfully!")
         print(f"Project ID: {PROJECT_ID}")
         print(f"Project Name: {created_project['project']['name']}")
@@ -48,7 +52,7 @@ if __name__ == "__main__":
         if REQUEST_LETTER_FILE:
             print("Uploading request letter...")
             print("-" * 50)
-            request_letter_upload = created_project["requestLetterUpload"]
+            request_letter_upload = created_project["requestLetter"]
             with open(REQUEST_LETTER_FILE, "rb") as f:
                 upload_response = requests.put(
                     request_letter_upload["uploadUrl"],
@@ -63,7 +67,7 @@ if __name__ == "__main__":
         if REPRESENTATION_LETTER_FILE:
             print("Uploading representation letter...")
             print("-" * 50)
-            representation_letter_upload = created_project["representationLetterUpload"]
+            representation_letter_upload = created_project["representationLetter"]
             with open(REPRESENTATION_LETTER_FILE, "rb") as f:
                 upload_response = requests.put(
                     representation_letter_upload["uploadUrl"],
