@@ -29,7 +29,7 @@ PATIENT = {
     "firstName": "Jane",
     "lastName": "Doe",
     "dateOfBirth": "1990-01-01",
-    "sex": "Female",
+    "sex": "female", # can be male | female | unknown or M | F | U
     "startDateOfService": "2020-01-01",   # Start of care window
     "endDateOfService": "2025-01-01",     # End of care window
     "hipaaExpirationDate": "2025-01-01",  # HIPAA authorization expiration
