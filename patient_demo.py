@@ -28,7 +28,7 @@ PATIENT = {
     "firstName": "Alejandro",
     "lastName": "Franco",
     "dateOfBirth": "1990-01-01",
-    "sex": "Female",
+    "sex": "female", # can be male | female | unknown or M | F | U
     "zipCode": "12345",
     "mobile": "123-456-7890",
     "email": "jane.doe@example.com",
@@ -79,7 +79,7 @@ if __name__ == "__main__":
     # Step 3: Trigger Site Sonar to retrieve facilities for this patient
     # This takes 12-48 hours, so we will retrieve a previous patient's as an example
     site_sonar_response_json = requests.get(
-        f"{DOMAIN}/v0/companies/{COMPANY_ID}/projects/{PROJECT_ID}/patients/{PREVIOUS_PATIENT_ID}/site-sonar?columns=patient~siteSonar&flatten",
+        f"{DOMAIN}/v0/site-sonar?columns=patient~siteSonar&flatten&filter=patient.id-eq-{PATIENT_ID}~patient.companyId-eq-{COMPANY_ID}~patient.projectId-eq-{PROJECT_ID}",
         headers=headers
     ).json()
         
