@@ -16,7 +16,7 @@ import json
 # --------------------
 # Configuration values
 # --------------------
-DOMAIN = "https://api.hermeshealth.dev"  # Base API domain
+DOMAIN = "https://api.hermeshealth.ai"  # Base API domain
 API_KEY = ""  # Replace with your Hermes Health API key
 PROJECT_ID = 456752830  # Replace with your project ID
 COMPANY_ID = 1
