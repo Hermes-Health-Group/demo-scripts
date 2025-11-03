@@ -23,7 +23,7 @@ Configuration
 -------------
 Edit the variables below:
 
-    DOMAIN  = "https://api.hermeshealth.dev"  # Base API URL
+    DOMAIN  = "https://api.hermeshealth.ai"  # Base API URL
     API_KEY = "<YOUR_API_KEY>"               # Your Hermes Health API key
 
 Usage

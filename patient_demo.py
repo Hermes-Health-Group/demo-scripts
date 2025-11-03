@@ -39,6 +39,8 @@ PATIENT = {
     "endDateOfService": "2025-01-01",     # End of care window
     "hipaaExpirationDate": "2025-01-01",  # HIPAA authorization expiration
 
+    "authorizationType": "Hipaa", # can be Hipaa | Hitech. If not provided, it will default to Hipaa
+
     # You can set this to true even if the authorization has not been provided yet, we will only run once all required info is provided
     "siteSonar": True,  # Enable Site Sonar to find facilities automatically.
 }
@@ -76,12 +78,28 @@ if __name__ == "__main__":
         data=open(hipaa_authorization_filename, "rb")  # File stream
     )
 
-    # Step 3: Trigger Site Sonar to retrieve facilities for this patient
+
+    # Step 3: See the result of the authorization check
+    # This takes 10-60 seconds, so we will retrieve a previous patient's as an example
+    previous_patient_response_json = requests.get(
+        f"{DOMAIN}/v0/companies/{COMPANY_ID}/projects/{PROJECT_ID}/patients/{PREVIOUS_PATIENT_ID}",
+        headers=headers
+    ).json()
+
+    print("Previous patient analysis:")
+    analysis = previous_patient_response_json['hipaaAuthorization']['analysis']
+    if analysis is not None:
+        # The analysis is based on the authorization type, HITECH is less strict than HIPAA
+        print(json.dumps(analysis, indent=2))
+    else:
+        print("Analysis still processing, try again later")
+
+    # Step 4: Trigger Site Sonar to retrieve facilities for this patient
     # This takes 12-48 hours, so we will retrieve a previous patient's as an example
     site_sonar_response_json = requests.get(
-        f"{DOMAIN}/v0/site-sonar?columns=patient~siteSonar&flatten&filter=patient.id-eq-{PATIENT_ID}~patient.companyId-eq-{COMPANY_ID}~patient.projectId-eq-{PROJECT_ID}",
+        f"{DOMAIN}/v0/site-sonar?columns=patient~siteSonar&flatten&filter=patient.id-eq-{PREVIOUS_PATIENT_ID}~patient.companyId-eq-{COMPANY_ID}~patient.projectId-eq-{PROJECT_ID}",
         headers=headers
     ).json()
         
-    # Step 4: Pretty-print the Site Sonar JSON response
+    # Step 5: Pretty-print the Site Sonar JSON response
     print(json.dumps(site_sonar_response_json, indent=2))
