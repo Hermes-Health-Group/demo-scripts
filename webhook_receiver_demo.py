@@ -58,7 +58,7 @@ def verify_webhook_signature(payload_body, signature_header, secret):
     # Compare signatures (constant-time comparison to prevent timing attacks)
     return hmac.compare_digest(computed_hmac, signature_header)
 
-@app.route('/webhook', methods=['POST'])
+@app.route('/record-request', methods=['POST'])
 def webhook():
     """
     Webhook endpoint that receives record request status updates from Hermes Health.
@@ -91,6 +91,42 @@ def webhook():
     print("-"*60)
     print(json.dumps(webhook_data, indent=2))
     
+    # Return success response
+    return jsonify({"status": "received"}), 200
+
+@app.route('/site-sonar', methods=['POST'])
+def site_sonar_webhook():
+    """
+    Webhook endpoint that receives site sonar updates from Hermes Health.
+    """
+    print("\n" + "="*60)
+    print("Received Site Sonar webhook from Hermes Health")
+    print("="*60)
+
+    # Get the signature from headers
+    signature = request.headers.get('X-Webhook-Signature')
+
+    # Get raw request body for signature verification
+    payload_body = request.get_data()
+
+    # Verify the signature
+    print(f"\nVerifying signature...")
+    if not verify_webhook_signature(payload_body, signature, WEBHOOK_SECRET):
+        print("ERROR: Invalid signature! Webhook may not be from Hermes Health.")
+        print("Make sure that the webhook secret matches the one in your Hermes Health settings.")
+        return jsonify({"error": "Invalid signature"}), 401
+
+    print("✓ Signature verified successfully")
+
+    # Parse the JSON payload
+    webhook_data = request.get_json()
+
+    # Print full payload for debugging
+    print("\n" + "-"*60)
+    print("Site Sonar Webhook Payload:")
+    print("-"*60)
+    print(json.dumps(webhook_data, indent=2))
+
     # Return success response
     return jsonify({"status": "received"}), 200
 
