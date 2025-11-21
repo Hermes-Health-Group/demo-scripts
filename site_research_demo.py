@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
         # Call the Site Finder endpoint
         response = requests.post(
-            f"{DOMAIN}/v0/site-finder",
+            f"{DOMAIN}/v0/site-research",
             headers=headers,
             json=test_case
         )
