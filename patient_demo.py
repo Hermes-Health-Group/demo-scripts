@@ -42,7 +42,7 @@ PATIENT = {
     "authorizationType": "Hipaa", # can be Hipaa | Hitech. If not provided, it will default to Hipaa
 
     # You can set this to true even if the authorization has not been provided yet, we will only run once all required info is provided
-    "siteSonar": True,  # Enable Site Sonar to find facilities automatically.
+    "searchLevel": "SiteSonar",  # Enable Site Sonar to find facilities automatically.
 }
 
 # ------------------------
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     # Step 4: Trigger Site Sonar to retrieve facilities for this patient
     # This takes 12-48 hours, so we will retrieve a previous patient's as an example
     site_sonar_response_json = requests.get(
-        f"{DOMAIN}/v0/site-sonar?columns=patient~siteSonar&flatten&filter=patient.id-eq-{PREVIOUS_PATIENT_ID}~patient.companyId-eq-{COMPANY_ID}~patient.projectId-eq-{PROJECT_ID}",
+        f"{DOMAIN}/v0/site-sonar?columns=patient~visit&flatten&filter=patient.id-eq-{PREVIOUS_PATIENT_ID}~patient.companyId-eq-{COMPANY_ID}~patient.projectId-eq-{PROJECT_ID}",
         headers=headers
     ).json()
         
