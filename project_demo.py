@@ -13,7 +13,10 @@ COMPANY_ID = "1"
 NEW_PROJECT = {
     "name": "Demo Project",
     "description": "A sample project for demonstration purposes",
-    "medicalInformationRequested": ["Lab Results", "Imaging", "Progress Notes"]
+    "medicalInformationRequested": ["Lab Results", "Imaging", "Progress Notes"],
+    
+    # Can be: CoveredOperations, CoveredPayment, InsuranceLife, InsuranceOther, LegalDefense, LegalPlaintiff, ResearchClinicalTrials, or ResearchPatientRegistries
+    "purpose": "LegalPlaintiff"
 }
 
 # File paths for uploads (passed as command line arguments)
