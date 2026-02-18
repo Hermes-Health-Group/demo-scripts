@@ -28,7 +28,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 # ---------------------
 # Configuration
 # ---------------------
-DOMAIN = "https://api.hermeshealth.dev"
+DOMAIN = "https://api.hermeshealth.ai"
 API_KEY = ""  # insert your API key here
 
 # Webhook receiver settings
