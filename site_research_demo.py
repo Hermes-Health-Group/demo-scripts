@@ -2,54 +2,23 @@
 SITE FINDER DEMO SCRIPT
 =======================
 
-Purpose
--------
-This script demonstrates how to use the Hermes Health Site Finder API to look up
-healthcare facility records based on address data. It will:
+Demonstrates the Hermes Health Site Finder API. For each test case it:
 
-1. Start a local webhook receiver on a configurable port
-2. Submit one or more test cases to the `/v0/site-finder` endpoint with webhook_url
-3. Print the initial response (found site, matches, nearby sites)
-4. Wait for the background research webhook callback with enriched site data
+1. Submits the address to /v0/site-finder
+2. Prints the initial response (found site, matches, nearby sites)
+3. Waits for enriched site data via polling (default) or webhook
 
-The Site Finder endpoint finds or creates a facility, and automatically triggers
-AI-powered background research if the site hasn't been researched recently. When
-a webhook_url is provided, the enriched site data is POSTed to that URL once
-research completes (typically 30-60 seconds).
+Prerequisites: Python 3.6+, `pip install requests`
 
-Prerequisites
--------------
-- Python 3.6+
-- `requests` library (install via `pip install requests`)
-
-Configuration
--------------
-Edit the variables below:
-
-    DOMAIN      = "https://api.hermeshealth.ai"  # Base API URL
-    API_KEY     = "<YOUR_API_KEY>"               # Your Hermes Health API key
-    WEBHOOK_PORT = 8777                          # Local port for webhook receiver
-    WEBHOOK_HOST = "<YOUR_PUBLIC_URL>"           # Public URL that the API can reach
-
-Usage
------
-    python site_research_demo.py
-
-Since this is a demo, the test cases are hard-coded in the script. You can
-replace `TEST_CASES` or adapt the code to read from a file or other source.
-
-Output
-------
-For each test case, you'll see:
-
-1. The initial site finder response (found site, match confidence, nearby sites)
-2. A webhook callback with the fully researched site data (phone numbers, fax,
-   email, ROI vendor info, etc.) once background research completes
-
+Usage:
+    python site_research_demo.py              # polling mode (default)
+    python site_research_demo.py --webhook    # webhook mode
 """
 
+import argparse
 import requests
 import json
+import time
 import hmac
 import hashlib
 import uuid
@@ -59,19 +28,17 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 # ---------------------
 # Configuration
 # ---------------------
-DOMAIN = "https://api.hermeshealth.ai"
+DOMAIN = "https://api.hermeshealth.dev"
 API_KEY = ""  # insert your API key here
 
 # Webhook receiver settings
-# WEBHOOK_HOST must be a URL reachable by the Hermes API server.
-# For local development, you can use a tunnel service (e.g. ngrok) and set
-# WEBHOOK_HOST to your tunnel URL. The local server always binds to 0.0.0.0.
+# For local development, use a tunnel service (e.g. ngrok) and set
+# WEBHOOK_HOST to your tunnel URL.
 WEBHOOK_PORT = 8777
-WEBHOOK_HOST = "http://localhost:8777"  # e.g. "https://abc123.ngrok.io" — leave empty to skip webhooks
+WEBHOOK_HOST = "http://localhost:8777"  # e.g. "https://abc123.ngrok.io"
 
 # Your company's webhook secret (UUID) from the Hermes Health dashboard.
 # Used to verify HMAC-SHA256 signatures on incoming webhooks.
-# Leave empty to skip signature verification.
 WEBHOOK_SECRET = ""  # e.g. "d1234567-abcd-1234-abcd-1234567890ab"
 
 # Demo test cases
@@ -112,8 +79,6 @@ def verify_webhook_signature(body: bytes, signature: str, secret: str) -> bool:
 
 
 class WebhookHandler(BaseHTTPRequestHandler):
-    """Simple HTTP handler that receives POST callbacks from the Site Finder."""
-
     def do_POST(self):
         content_length = int(self.headers.get("Content-Length", 0))
         body = self.rfile.read(content_length)
@@ -128,15 +93,9 @@ class WebhookHandler(BaseHTTPRequestHandler):
                 return
             print("  Signature verified.")
 
-        try:
-            payload = json.loads(body)
-        except json.JSONDecodeError:
-            self.send_response(400)
-            self.end_headers()
-            return
-
-        site_name = payload.get("site", {}).get("siteName", "unknown")
-        site_id = payload.get("site", {}).get("id", "?")
+        payload = json.loads(body)
+        site_name = payload["site"]["siteName"]
+        site_id = payload["site"]["id"]
 
         print(f"\n{'=' * 60}")
         print(f"WEBHOOK RECEIVED — Research complete for: {site_name} (id={site_id})")
@@ -154,7 +113,6 @@ class WebhookHandler(BaseHTTPRequestHandler):
         self.wfile.write(b'{"status":"received"}')
 
     def log_message(self, format, *args):
-        # Silence default request logging
         pass
 
 
@@ -170,27 +128,51 @@ def start_webhook_server():
 
 
 # ---------------------
+# Polling
+# ---------------------
+def poll_for_research(site_id, site_name, headers, eta):
+    """Poll GET /v0/sites/{id} until researchFinished is populated."""
+    print(f"\n  Polling for research on: {site_name} (ETA ~{eta}s)")
+    time.sleep(eta / 2)  # initial delay before polling
+    while True:
+        time.sleep(5)
+        resp = requests.get(f"{DOMAIN}/v0/sites/{site_id}", headers=headers)
+        site_data = resp.json()
+        if site_data["site"].get("researchFinished"):
+            print(f"\n{'=' * 60}")
+            print(f"RESEARCH COMPLETE — {site_name} (id={site_id})")
+            print("=" * 60)
+            print(json.dumps(site_data, indent=2))
+            return
+        print(f"  ... still researching {site_name}")
+
+
+# ---------------------
 # Main
 # ---------------------
 if __name__ == "__main__":
-    use_webhooks = bool(WEBHOOK_HOST)
+    parser = argparse.ArgumentParser(description="Hermes Health Site Finder demo")
+    parser.add_argument(
+        "--webhook", action="store_true",
+        help="Use webhook mode instead of polling (default: polling)"
+    )
+    args = parser.parse_args()
 
-    if use_webhooks:
+    use_webhook = args.webhook
+
+    if use_webhook:
         webhook_url_base = WEBHOOK_HOST.rstrip("/")
         print(f"Starting webhook receiver on port {WEBHOOK_PORT}...")
-        print(f"Webhook URL base: {webhook_url_base}")
         server_thread = threading.Thread(target=start_webhook_server, daemon=True)
         server_thread.start()
-    else:
-        print("WEBHOOK_HOST not set — skipping webhook callbacks.")
-        print("You will still see the initial site finder response.\n")
 
     headers = {
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json"
     }
 
-    max_eta = 0  # Track the longest research ETA across all responses
+    max_eta = 0
+    poll_threads = []
 
     for test_case in TEST_CASES:
         site_name = test_case["name"]
@@ -198,12 +180,10 @@ if __name__ == "__main__":
         print(f"\nLooking up: {site_name}")
         print("-" * 50)
 
-        # Build request body — include webhook_url if configured
         body = dict(test_case)
-        if use_webhooks:
+        if use_webhook:
             body["webhookUrl"] = f"{webhook_url_base}/site-research-callback"
 
-        # Call the Site Finder endpoint
         response = requests.post(
             f"{DOMAIN}/v0/site-finder",
             headers=headers,
@@ -213,27 +193,32 @@ if __name__ == "__main__":
         print(f"Status: {response.status_code}")
         result = response.json()
 
-        # Track research ETA and which site IDs to expect webhooks for
         eta = result.get("researchEta")
         if eta:
             max_eta = max(max_eta, eta)
 
-        # Summarize the initial response
         found = result.get("foundSite")
         if found:
             site = found["site"]
-            found_id = site.get("id")
-            print(f"  Found: {site.get('siteName')} (id={found_id})")
-            print(f"  Confidence: {found.get('confidenceScore')}%")
-            print(f"  Distance: {found.get('distanceFeet')} ft")
-            print(f"  Reason: {found.get('reason')}")
+            found_id = site["id"]
+            print(f"  Found: {site['siteName']} (id={found_id})")
+            print(f"  Confidence: {found['confidenceScore']}%")
+            print(f"  Distance: {found['distanceFeet']} ft")
+            print(f"  Reason: {found['reason']}")
             if eta:
-                pending_site_ids.add(found_id)
+                if use_webhook:
+                    pending_site_ids.add(found_id)
+                else:
+                    t = threading.Thread(
+                        target=poll_for_research,
+                        args=(found_id, site['siteName'], headers, eta),
+                        daemon=True
+                    )
+                    t.start()
+                    poll_threads.append(t)
                 print(f"  Background research triggered (ETA ~{eta}s)")
             else:
-                researched = site.get("researchFinished")
-                if researched:
-                    print(f"  Last researched: {researched}")
+                print(f"  Last researched: {site.get('researchFinished')}")
         else:
             print("  No matching site found")
 
@@ -244,22 +229,17 @@ if __name__ == "__main__":
         nearby = result.get("nearbySites", [])
         print(f"  Nearby sites within radius: {len(nearby)}")
 
-    if use_webhooks and pending_site_ids:
+    # Wait for research results
+    if use_webhook and pending_site_ids:
         print(f"\n{'=' * 60}")
-        print(f"Waiting up to {max_eta}s for {len(pending_site_ids)} background research webhook(s)...")
-        print(f"(expecting site IDs: {', '.join(str(s) for s in sorted(pending_site_ids))})")
+        print(f"Waiting for {len(pending_site_ids)} background research webhook(s)...")
         print("=" * 60)
-
-        finished = all_done.wait(timeout=max_eta)
-        if finished:
-            print(f"\nAll {len(webhook_results)} webhook(s) received.")
-        else:
-            total = len(webhook_results) + len(pending_site_ids)
-            print(f"\nTimed out after {max_eta}s. Received {len(webhook_results)}/{total} webhook(s).")
-            if pending_site_ids:
-                print(f"Still waiting on site IDs: {', '.join(str(s) for s in sorted(pending_site_ids))}")
-    elif use_webhooks:
-        print("\nNo background research triggered — no webhooks expected.")
+        all_done.wait()
+        print(f"\nReceived {len(webhook_results)} webhook(s).")
+    elif poll_threads:
+        for t in poll_threads:
+            t.join()
+    else:
         all_done.set()
 
     print("\nDone.")
