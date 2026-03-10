@@ -6,7 +6,8 @@ Demonstrates the Hermes Health Site Finder API. For each test case it:
 
 1. Submits the address to /v0/site-finder
 2. Prints the initial response (found site, matches, nearby sites)
-3. Waits for enriched site data via polling (default) or webhook
+3. Triggers research via POST /v0/sites/{id}/research
+4. Waits for enriched site data via polling (default) or webhook
 
 Prerequisites: Python 3.6+, `pip install requests`
 
@@ -35,7 +36,7 @@ API_KEY = ""  # insert your API key here
 # For local development, use a tunnel service (e.g. ngrok) and set
 # WEBHOOK_HOST to your tunnel URL.
 WEBHOOK_PORT = 8777
-WEBHOOK_HOST = "http://localhost:8777"  # e.g. "https://abc123.ngrok.io"
+WEBHOOK_HOST = ""  # e.g. "https://abc123.ngrok.io"
 
 # Your company's webhook secret (UUID) from the Hermes Health dashboard.
 # Used to verify HMAC-SHA256 signatures on incoming webhooks.
@@ -44,14 +45,14 @@ WEBHOOK_SECRET = ""  # e.g. "d1234567-abcd-1234-abcd-1234567890ab"
 # Demo test cases
 TEST_CASES = [
     {
-        "name": "Ochsner Medical Center",
+        "siteName": "Ochsner Medical Center",
         "address": "1514 Jefferson Hwy",
         "city": "Jefferson",
         "state": "LA",
         "zip": "70121"
     },
     {
-        "name": "Woman's Hospital",
+        "siteName": "Woman's Hospital",
         "address": "100 Woman's Way",
         "city": "Baton Rouge",
         "state": "LA",
@@ -130,10 +131,10 @@ def start_webhook_server():
 # ---------------------
 # Polling
 # ---------------------
-def poll_for_research(site_id, site_name, headers, eta):
+def poll_for_research(site_id, site_name, headers):
     """Poll GET /v0/sites/{id} until researchFinished is populated."""
-    print(f"\n  Polling for research on: {site_name} (ETA ~{eta}s)")
-    time.sleep(eta / 2)  # initial delay before polling
+    print(f"\n  Polling for research on: {site_name}")
+    time.sleep(15)  # initial delay before polling
     while True:
         time.sleep(5)
         resp = requests.get(f"{DOMAIN}/v0/sites/{site_id}", headers=headers)
@@ -171,18 +172,15 @@ if __name__ == "__main__":
         "Content-Type": "application/json"
     }
 
-    max_eta = 0
     poll_threads = []
 
     for test_case in TEST_CASES:
-        site_name = test_case["name"]
+        site_name = test_case["siteName"]
 
         print(f"\nLooking up: {site_name}")
         print("-" * 50)
 
         body = dict(test_case)
-        if use_webhook:
-            body["webhookUrl"] = f"{webhook_url_base}/site-research-callback"
 
         response = requests.post(
             f"{DOMAIN}/v0/site-finder",
@@ -193,40 +191,55 @@ if __name__ == "__main__":
         print(f"Status: {response.status_code}")
         result = response.json()
 
-        eta = result.get("researchEta")
-        if eta:
-            max_eta = max(max_eta, eta)
+        output_path = f"{site_name.replace(' ', '_')}_response.json"
+        with open(output_path, "w") as f:
+            json.dump(result, f, indent=2)
+        print(f"  Response written to {output_path}")
 
-        found = result.get("foundSite")
+        print(f"  Outcome: {result.get('outcome')}")
+
+        finder = result.get("finderOutput", {})
+        found = finder.get("foundSite")
         if found:
             site = found["site"]
             found_id = site["id"]
             print(f"  Found: {site['siteName']} (id={found_id})")
-            print(f"  Confidence: {found['confidenceScore']}%")
+            print(f"  Similarity: {found.get('similarityScore')}%")
             print(f"  Distance: {found['distanceFeet']} ft")
             print(f"  Reason: {found['reason']}")
-            if eta:
-                if use_webhook:
-                    pending_site_ids.add(found_id)
-                else:
-                    t = threading.Thread(
-                        target=poll_for_research,
-                        args=(found_id, site['siteName'], headers, eta),
-                        daemon=True
-                    )
-                    t.start()
-                    poll_threads.append(t)
-                print(f"  Background research triggered (ETA ~{eta}s)")
+            if site.get("researchFinished"):
+                print(f"  Last researched: {site['researchFinished']}")
+
+            # Trigger research explicitly
+            research_body = {}
+            if use_webhook:
+                research_body["webhookUrl"] = f"{webhook_url_base}/site-research-callback"
+
+            research_resp = requests.post(
+                f"{DOMAIN}/v0/sites/{found_id}/research",
+                headers=headers,
+                json=research_body
+            )
+            print(f"  Research triggered: {research_resp.status_code}")
+
+            if use_webhook:
+                pending_site_ids.add(found_id)
             else:
-                print(f"  Last researched: {site.get('researchFinished')}")
+                t = threading.Thread(
+                    target=poll_for_research,
+                    args=(found_id, site['siteName'], headers),
+                    daemon=True
+                )
+                t.start()
+                poll_threads.append(t)
         else:
             print("  No matching site found")
 
-        matches = result.get("allMatches", [])
+        matches = finder.get("allMatches", [])
         if len(matches) > 1:
             print(f"  Additional matches: {len(matches) - 1}")
 
-        nearby = result.get("nearbySites", [])
+        nearby = finder.get("nearbySites", [])
         print(f"  Nearby sites within radius: {len(nearby)}")
 
     # Wait for research results
