@@ -42,7 +42,7 @@ PATIENT = {
     "authorizationType": "Hipaa", # can be Hipaa | Hitech. If not provided, it will default to Hipaa
 
     # You can set this to true even if the authorization has not been provided yet, we will only run once all required info is provided
-    "searchLevel": "SiteSonar",  # Enable Site Sonar to find facilities automatically.
+    "searchLevel": "SiteSonar", 'PatientHistories' # Enable Site Sonar to find facilities automatically. Enable to Patient Histories to find diagnosis, procedures, and medications
 }
 
 # ------------------------
